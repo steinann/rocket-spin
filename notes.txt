@@ -1,0 +1,1 @@
+After build index.html needs script to be updated to be relative to work in github pages

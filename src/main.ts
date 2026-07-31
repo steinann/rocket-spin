@@ -461,7 +461,7 @@ let passesArr = [
     8843.160026892536,
     8937.184309771617,
     9032.283231100428,
-    44330.8,
+    9032.283231100428,
     9032.283231100428,
     9128.485490065776,
     9128.485490065776,
@@ -497,7 +497,7 @@ let passesArr = [
     5417.320341071861,
     5229.756467500279,
     4985.47950606813,
-    44330.8,
+    4715.439798377196,
     4515.439798377196,
     4289.004673166116,
     4067.8908002427474,
@@ -821,6 +821,55 @@ scene.add(ambientLight)
 const directionalLight = new THREE.DirectionalLight(new THREE.Color(1,1,1), 1)
 scene.add(directionalLight)
 
+const particleGeometry = new THREE.SphereGeometry(3,2,2)
+
+class Particle {
+    normalizedTime: number = 0
+    mesh: THREE.Mesh
+    material: THREE.Material
+    position: THREE.Vector3 = new THREE.Vector3(0,-999,0)
+    direction: THREE.Vector3 = new THREE.Vector3(0,1,0)
+    active: boolean = false
+
+    constructor(mesh: THREE.Mesh, material: THREE.Material) {
+        this.mesh = mesh
+        this.material = material
+    }
+
+    update(deltaTime: number) {
+        this.position = this.position.add(this.direction.clone().multiplyScalar(deltaTime))
+        this.normalizedTime += deltaTime
+        this.mesh.position.copy(this.position)
+        this.material.opacity = 1 - this.normalizedTime
+    }
+}
+
+function emit(pos: THREE.Vector3, direction: THREE.Vector3) {
+    const particle = particles.find((v) => {return v.normalizedTime >= 1 || !v.active})
+    if (particle) {
+        particle.normalizedTime = 0
+        particle.position = pos
+        particle.direction = direction
+        particle.mesh.rotation.set(Math.random()*Math.PI*2,Math.random()*Math.PI*2,Math.random()*Math.PI*2)
+        particle.active = true
+    }
+}
+
+const particles: Particle[] = []
+for (let i = 0; i < 60; i++) {
+    const particleMaterial = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(0.5,0.5,0.5),
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 1,
+    })
+    const particleMesh = new THREE.Mesh(particleGeometry, particleMaterial)
+    const particle = new Particle(particleMesh, particleMaterial)
+
+    particles.push(particle)
+    scene.add(particle.mesh)
+}
+
 const skyUniforms = {
     topColor: { value: new THREE.Color(0x87ceeb) },   // Sky blue
     bottomColor: { value: new THREE.Color(0xffffff) }, // Near horizon
@@ -856,15 +905,6 @@ const skyMaterial = new THREE.ShaderMaterial({
 const skyGeo = new THREE.SphereGeometry(500, 32, 15);
 const sky = new THREE.Mesh(skyGeo, skyMaterial);
 scene.add(sky);
-
-// Simple ground plane
-const ground = new THREE.Mesh(
-    new THREE.PlaneGeometry(10000, 10000),
-    new THREE.MeshPhongMaterial({ color: 0x228B22 })
-);
-ground.rotation.x = -Math.PI / 2;
-ground.position.set(0,-1000,0)
-scene.add(ground);
 
 camera.position.set(100,10,100)
 camera.lookAt(new THREE.Vector3(0,0,0))
@@ -916,13 +956,32 @@ function lerp(a: number,b: number,t: number) {
 	return a + (b - a) * t
 }
 
-playButton.addEventListener("click", () => {
+function clickPlay() {
     if (isPaused && passedTime >= maxTime - minTime - 0.01) {
         passedTime = 0
         justSkipped = true
     }
     setPause(!isPaused)
+}
+
+document.body.addEventListener("keyup", (e) => {
+    if (e.key === " ") {
+        setPause(!isPaused)
+    } else if (e.key === "ArrowRight") {
+        passedTime += 5
+        passedTime = Math.min(maxTime - minTime, passedTime)
+        justSkipped = true
+        if (passedTime >= maxTime - minTime && isPaused) {
+            passedTime = 0
+            setPause(false)
+        }
+    } else if (e.key === "ArrowLeft") {
+        passedTime -= 5
+        passedTime = Math.max(0, passedTime)
+        justSkipped = true
+    }
 })
+playButton.addEventListener("click", clickPlay)
 barDiv.addEventListener("click", (e: PointerEvent) => {
     const bounds = barDiv.getBoundingClientRect()
     const mouseTotal = e.clientX - bounds.left
@@ -934,28 +993,28 @@ barDiv.addEventListener("click", (e: PointerEvent) => {
 })
 speedButton.addEventListener("click", () => {
     switch (speedMult) {
+        case 0.25:
+            speedMult = 1
+            break
         case 1:
-            speedMult = 2
-            break
-        case 2:
-            speedMult = 4
-            break
-        case 4:
             speedMult = 8
             break
         case 8:
             speedMult = 16
             break
         case 16:
-            speedMult = 1
+            speedMult = 0.25
             break
     }
 
     speedButton.innerText = speedMult + "x"
 })
 
+let nextParticleTime = 0
+
 function animate() {
     const deltaTime = (Date.now() / 1000 - lastTime) * speedMult
+    nextParticleTime += deltaTime
     if (!isPaused) passedTime += deltaTime
     if (passedTime > maxTime - minTime) {
         setPause(true)
@@ -967,6 +1026,18 @@ function animate() {
 
     const percentage = (passedTime / (maxTime - minTime) * 100)
     barInsideDiv.style.width = percentage + "%"
+
+    if (!isPaused) {
+        for (const particle of particles) {
+            particle.update(deltaTime)
+        }
+    }
+
+    if (justSkipped) {
+        for (const particle of particles) {
+            particle.normalizedTime = 1000
+        }
+    }
 
     if (!isPaused || justSkipped) {
         if (rocketScene) {
@@ -997,8 +1068,23 @@ function animate() {
             if (justSkipped) {
                 currentPitch = targetPitch
             }
-            rocketScene.rotation.set(currentPitch, currentYaw, 0, "XYZ")
+            rocketScene.rotation.set(currentPitch, currentYaw*Math.PI/180, 0, "XYZ")
+            const rotatedVector = new THREE.Vector3(0,0,-1).applyEuler(new THREE.Euler(currentPitch - Math.PI/2,0,0,"XYZ"))
+            const sideVector = new THREE.Vector3(0.01,0,0).applyEuler(rocketScene.rotation)
+            rotatedVector.add(sideVector)
             //console.log(pitch / Math.PI * 180)
+
+            if (nextParticleTime > 0.05) {
+                nextParticleTime = 0
+                emit(rotatedVector.multiplyScalar(0.8), rotatedVector.multiplyScalar(100))
+            }
+
+            if (justSkipped) {
+                for (let i = 0; i < 1 / 0.05; i++) {
+                    emit(rotatedVector.multiplyScalar(0.8), rotatedVector.multiplyScalar(100))
+                    for (const particle of particles) {particle.update(0.05)}
+                }
+            }
         }
     }
 

@@ -15118,91 +15118,6 @@ class MeshPhysicalMaterial extends MeshStandardMaterial {
     return this;
   }
 }
-class MeshPhongMaterial extends Material {
-  /**
-   * Constructs a new mesh phong material.
-   *
-   * @param {Object} [parameters] - An object with one or more properties
-   * defining the material's appearance. Any property of the material
-   * (including any property from inherited materials) can be passed
-   * in here. Color values can be passed any type of value accepted
-   * by {@link Color#set}.
-   */
-  constructor(parameters) {
-    super();
-    this.isMeshPhongMaterial = true;
-    this.type = "MeshPhongMaterial";
-    this.color = new Color(16777215);
-    this.specular = new Color(1118481);
-    this.shininess = 30;
-    this.map = null;
-    this.lightMap = null;
-    this.lightMapIntensity = 1;
-    this.aoMap = null;
-    this.aoMapIntensity = 1;
-    this.emissive = new Color(0);
-    this.emissiveIntensity = 1;
-    this.emissiveMap = null;
-    this.bumpMap = null;
-    this.bumpScale = 1;
-    this.normalMap = null;
-    this.normalMapType = TangentSpaceNormalMap;
-    this.normalScale = new Vector2(1, 1);
-    this.displacementMap = null;
-    this.displacementScale = 1;
-    this.displacementBias = 0;
-    this.specularMap = null;
-    this.alphaMap = null;
-    this.envMap = null;
-    this.envMapRotation = new Euler();
-    this.combine = MultiplyOperation;
-    this.reflectivity = 1;
-    this.refractionRatio = 0.98;
-    this.wireframe = false;
-    this.wireframeLinewidth = 1;
-    this.wireframeLinecap = "round";
-    this.wireframeLinejoin = "round";
-    this.flatShading = false;
-    this.fog = true;
-    this.setValues(parameters);
-  }
-  copy(source) {
-    super.copy(source);
-    this.color.copy(source.color);
-    this.specular.copy(source.specular);
-    this.shininess = source.shininess;
-    this.map = source.map;
-    this.lightMap = source.lightMap;
-    this.lightMapIntensity = source.lightMapIntensity;
-    this.aoMap = source.aoMap;
-    this.aoMapIntensity = source.aoMapIntensity;
-    this.emissive.copy(source.emissive);
-    this.emissiveMap = source.emissiveMap;
-    this.emissiveIntensity = source.emissiveIntensity;
-    this.bumpMap = source.bumpMap;
-    this.bumpScale = source.bumpScale;
-    this.normalMap = source.normalMap;
-    this.normalMapType = source.normalMapType;
-    this.normalScale.copy(source.normalScale);
-    this.displacementMap = source.displacementMap;
-    this.displacementScale = source.displacementScale;
-    this.displacementBias = source.displacementBias;
-    this.specularMap = source.specularMap;
-    this.alphaMap = source.alphaMap;
-    this.envMap = source.envMap;
-    this.envMapRotation.copy(source.envMapRotation);
-    this.combine = source.combine;
-    this.reflectivity = source.reflectivity;
-    this.refractionRatio = source.refractionRatio;
-    this.wireframe = source.wireframe;
-    this.wireframeLinewidth = source.wireframeLinewidth;
-    this.wireframeLinecap = source.wireframeLinecap;
-    this.wireframeLinejoin = source.wireframeLinejoin;
-    this.flatShading = source.flatShading;
-    this.fog = source.fog;
-    return this;
-  }
-}
 class MeshDepthMaterial extends Material {
   /**
    * Constructs a new mesh depth material.
@@ -32463,7 +32378,7 @@ let altitudeArr = [
   8843.160026892536,
   8937.184309771617,
   9032.283231100428,
-  44330.8,
+  9032.283231100428,
   9032.283231100428,
   9128.485490065776,
   9128.485490065776,
@@ -32499,7 +32414,7 @@ let altitudeArr = [
   5417.320341071861,
   5229.756467500279,
   4985.47950606813,
-  44330.8,
+  4715.439798377196,
   4515.439798377196,
   4289.004673166116,
   4067.8908002427474,
@@ -32804,6 +32719,50 @@ const ambientLight = new AmbientLight(new Color(0.5, 0.5, 0.5), Math.PI / 2);
 scene.add(ambientLight);
 const directionalLight = new DirectionalLight(new Color(1, 1, 1), 1);
 scene.add(directionalLight);
+const particleGeometry = new SphereGeometry(3, 2, 2);
+class Particle {
+  normalizedTime = 0;
+  mesh;
+  material;
+  position = new Vector3(0, -999, 0);
+  direction = new Vector3(0, 1, 0);
+  active = false;
+  constructor(mesh, material) {
+    this.mesh = mesh;
+    this.material = material;
+  }
+  update(deltaTime) {
+    this.position = this.position.add(this.direction.clone().multiplyScalar(deltaTime));
+    this.normalizedTime += deltaTime;
+    this.mesh.position.copy(this.position);
+    this.material.opacity = 1 - this.normalizedTime;
+  }
+}
+function emit(pos, direction) {
+  const particle = particles.find((v) => {
+    return v.normalizedTime >= 1 || !v.active;
+  });
+  if (particle) {
+    particle.normalizedTime = 0;
+    particle.position = pos;
+    particle.direction = direction;
+    particle.mesh.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
+    particle.active = true;
+  }
+}
+const particles = [];
+for (let i = 0; i < 60; i++) {
+  const particleMaterial = new MeshBasicMaterial({
+    color: new Color(0.5, 0.5, 0.5),
+    side: DoubleSide,
+    transparent: true,
+    opacity: 1
+  });
+  const particleMesh = new Mesh(particleGeometry, particleMaterial);
+  const particle = new Particle(particleMesh, particleMaterial);
+  particles.push(particle);
+  scene.add(particle.mesh);
+}
 const skyUniforms = {
   topColor: { value: new Color(8900331) },
   // Sky blue
@@ -32838,13 +32797,6 @@ const skyMaterial = new ShaderMaterial({
 const skyGeo = new SphereGeometry(500, 32, 15);
 const sky = new Mesh(skyGeo, skyMaterial);
 scene.add(sky);
-const ground = new Mesh(
-  new PlaneGeometry(1e4, 1e4),
-  new MeshPhongMaterial({ color: 2263842 })
-);
-ground.rotation.x = -Math.PI / 2;
-ground.position.set(0, -1e3, 0);
-scene.add(ground);
 camera.position.set(100, 10, 100);
 camera.lookAt(new Vector3(0, 0, 0));
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -32885,13 +32837,31 @@ function setPause(paused) {
 function lerp(a, b, t) {
   return a + (b - a) * t;
 }
-playButton.addEventListener("click", () => {
+function clickPlay() {
   if (isPaused && passedTime >= maxTime - minTime - 0.01) {
     passedTime = 0;
     justSkipped = true;
   }
   setPause(!isPaused);
+}
+document.body.addEventListener("keyup", (e) => {
+  if (e.key === " ") {
+    setPause(!isPaused);
+  } else if (e.key === "ArrowRight") {
+    passedTime += 5;
+    passedTime = Math.min(maxTime - minTime, passedTime);
+    justSkipped = true;
+    if (passedTime >= maxTime - minTime && isPaused) {
+      passedTime = 0;
+      setPause(false);
+    }
+  } else if (e.key === "ArrowLeft") {
+    passedTime -= 5;
+    passedTime = Math.max(0, passedTime);
+    justSkipped = true;
+  }
 });
+playButton.addEventListener("click", clickPlay);
 barDiv.addEventListener("click", (e) => {
   const bounds = barDiv.getBoundingClientRect();
   const mouseTotal = e.clientX - bounds.left;
@@ -32903,26 +32873,25 @@ barDiv.addEventListener("click", (e) => {
 });
 speedButton.addEventListener("click", () => {
   switch (speedMult) {
+    case 0.25:
+      speedMult = 1;
+      break;
     case 1:
-      speedMult = 2;
-      break;
-    case 2:
-      speedMult = 4;
-      break;
-    case 4:
       speedMult = 8;
       break;
     case 8:
       speedMult = 16;
       break;
     case 16:
-      speedMult = 1;
+      speedMult = 0.25;
       break;
   }
   speedButton.innerText = speedMult + "x";
 });
+let nextParticleTime = 0;
 function animate() {
   const deltaTime = (Date.now() / 1e3 - lastTime) * speedMult;
+  nextParticleTime += deltaTime;
   if (!isPaused) passedTime += deltaTime;
   if (passedTime > maxTime - minTime) {
     setPause(true);
@@ -32933,6 +32902,16 @@ function animate() {
   }
   const percentage = passedTime / (maxTime - minTime) * 100;
   barInsideDiv.style.width = percentage + "%";
+  if (!isPaused) {
+    for (const particle of particles) {
+      particle.update(deltaTime);
+    }
+  }
+  if (justSkipped) {
+    for (const particle of particles) {
+      particle.normalizedTime = 1e3;
+    }
+  }
   if (!isPaused || justSkipped) {
     if (rocketScene) {
       const indx = Math.floor(passedTime + minTime);
@@ -32952,7 +32931,22 @@ function animate() {
       if (justSkipped) {
         currentPitch = targetPitch;
       }
-      rocketScene.rotation.set(currentPitch, currentYaw, 0, "XYZ");
+      rocketScene.rotation.set(currentPitch, currentYaw * Math.PI / 180, 0, "XYZ");
+      const rotatedVector = new Vector3(0, 0, -1).applyEuler(new Euler(currentPitch - Math.PI / 2, 0, 0, "XYZ"));
+      const sideVector = new Vector3(0.01, 0, 0).applyEuler(rocketScene.rotation);
+      rotatedVector.add(sideVector);
+      if (nextParticleTime > 0.05) {
+        nextParticleTime = 0;
+        emit(rotatedVector.multiplyScalar(0.8), rotatedVector.multiplyScalar(100));
+      }
+      if (justSkipped) {
+        for (let i = 0; i < 1 / 0.05; i++) {
+          emit(rotatedVector.multiplyScalar(0.8), rotatedVector.multiplyScalar(100));
+          for (const particle of particles) {
+            particle.update(0.05);
+          }
+        }
+      }
     }
   }
   controls.update();
