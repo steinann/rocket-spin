@@ -32935,11 +32935,9 @@ function animate() {
   if (!isPaused || justSkipped) {
     if (rocketScene) {
       const indx = Math.floor(passedTime + minTime);
-      const prevYaw = arrValueSafe(rotationArr, indx - 1);
-      const nextYaw = arrValueSafe(rotationArr, indx);
-      const diffYaw = nextYaw - prevYaw;
-      degreesPerSecondSpan.innerText = Math.round(Math.abs(diffYaw / 360)) + " / s";
-      currentYaw += diffYaw * deltaTime;
+      const yawChangeSpeed = arrValueSafe(rotationArr, indx);
+      degreesPerSecondSpan.innerText = Math.round(Math.abs(yawChangeSpeed / 360)) + " / s";
+      currentYaw += yawChangeSpeed * deltaTime;
       const altitude = avgAt(altitudeArr, indx);
       const nextAltitude = avgAt(altitudeArr, indx + 1);
       const deltaAltitude = nextAltitude - altitude;

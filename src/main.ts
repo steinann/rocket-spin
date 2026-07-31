@@ -973,13 +973,11 @@ function animate() {
 
             //const avg = avgAt(passesArr, indx)
 
-            const prevYaw = arrValueSafe(rotationArr, indx-1)
-            const nextYaw = arrValueSafe(rotationArr, indx)
+            const yawChangeSpeed = arrValueSafe(rotationArr, indx)
+            
+            degreesPerSecondSpan.innerText = Math.round(Math.abs(yawChangeSpeed / 360)) + " / s"
 
-            const diffYaw = nextYaw - prevYaw
-            degreesPerSecondSpan.innerText = Math.round(Math.abs(diffYaw / 360)) + " / s"
-
-            currentYaw += diffYaw * deltaTime //+= (avg * Math.PI * 2 * deltaTime)
+            currentYaw += yawChangeSpeed * deltaTime //+= (avg * Math.PI * 2 * deltaTime)
             
             const altitude = avgAt(altitudeArr, indx)
             const nextAltitude = avgAt(altitudeArr, indx+1)
