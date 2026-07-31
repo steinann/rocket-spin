@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { arrValueSafe, avgAt, getCSV, getPassesArray, shortenArray, smoothArray, sumArr } from './parser';
+import { arrValueSafe, avgAt, getCSV, getPassesArray, shortenArray, smoothArray } from './parser';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
 
 let passesArr = [
@@ -784,12 +784,12 @@ const barDiv = document.getElementById("bar") as HTMLDivElement
 const speedButton = document.getElementById("speed") as HTMLButtonElement
 const degreesPerSecondSpan = document.getElementById("degrees-per-second") as HTMLSpanElement
 
-const csv = await getCSV()
+/*const csv = await getCSV()
 const gyroscopeX = csv.data.get("IMU Y Gyroscope")!
 
 const summedGyroX = sumArr(gyroscopeX)
 const shortGyroX = shortenArray(summedGyroX, 256)
-console.log(shortGyroX)
+console.log(shortGyroX)*/
 
 let lastTime = Date.now() / 1000
 let passedTime = 0
@@ -975,7 +975,7 @@ function animate() {
             const diffYaw = nextYaw - prevYaw
             degreesPerSecondSpan.innerText = Math.round(Math.abs(diffYaw / 360)) + " / s"
 
-            currentYaw = lerp(prevYaw, nextYaw, passedTime % 1) //+= (avg * Math.PI * 2 * deltaTime)
+            currentYaw += diffYaw * deltaTime //+= (avg * Math.PI * 2 * deltaTime)
             
             const altitude = avgAt(altitudeArr, indx)
             const nextAltitude = avgAt(altitudeArr, indx+1)
