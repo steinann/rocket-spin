@@ -902,10 +902,12 @@ const skyMaterial = new THREE.ShaderMaterial({
 });
 
 // Large sphere for sky
-const skyGeo = new THREE.SphereGeometry(500, 32, 15);
+const skyGeo = new THREE.SphereGeometry(5000, 32, 15);
 const sky = new THREE.Mesh(skyGeo, skyMaterial);
 scene.add(sky);
 
+camera.far = 6000
+camera.updateProjectionMatrix()
 camera.position.set(100,10,100)
 camera.lookAt(new THREE.Vector3(0,0,0))
 
@@ -916,6 +918,7 @@ controls.enableZoom = false
 controls.enablePan = false
 
 let rocketScene: THREE.Group | undefined = undefined
+let buffaloScene: THREE.Group | undefined = undefined
 
 const loader = new GLTFLoader()
 loader.load("assets/rocket.glb", (model) => {
@@ -925,6 +928,20 @@ loader.load("assets/rocket.glb", (model) => {
     animate()
 
     loadRocket()
+})
+
+let mixer: THREE.AnimationMixer | undefined = undefined
+loader.load("assets/buffalo.glb", (model) => {
+    buffaloScene = model.scene
+    model.scene.scale.set(50,50,50)
+    model.scene.position.set(0,-100,-300)
+    scene.add(model.scene)
+
+    mixer = new THREE.AnimationMixer(model.scene);
+
+    const clips = model.animations;
+    const action = mixer.clipAction(clips[0]); // Play first animation
+    action.play();
 })
 
 document.body.appendChild(renderer.domElement)
@@ -1020,9 +1037,21 @@ function animate() {
     if (!document.hasFocus()) {
         setPause(true)
     }
+    if (mixer) {
+        mixer.update(deltaTime)
+    }
 
     const percentage = (passedTime / (maxTime - minTime) * 100)
     barInsideDiv.style.width = percentage + "%"
+
+    buffaloScene?.position.set(0,-100 - 500 + Math.min(100, percentage+20)*5,-1000 + 1000 * Math.min(100, percentage+20)/100)
+    if (percentage > 80) {
+        buffaloScene?.rotation.set(0,0,Math.PI/2)
+        document.getElementById("explosion")!.hidden = false
+    }
+    if (percentage > 81) {
+        document.getElementById("explosion")!.hidden = true
+    }
 
     if (!isPaused) {
         for (const particle of particles) {
