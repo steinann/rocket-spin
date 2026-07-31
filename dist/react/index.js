@@ -32784,6 +32784,7 @@ const barInsideDiv = document.getElementById("bar_inside");
 const barDiv = document.getElementById("bar");
 const speedButton = document.getElementById("speed");
 const degreesPerSecondSpan = document.getElementById("degrees-per-second");
+const altitudeSpan = document.getElementById("altitude");
 let lastTime = Date.now() / 1e3;
 let passedTime = 0;
 let isPaused = false;
@@ -32939,6 +32940,7 @@ function animate() {
       degreesPerSecondSpan.innerText = Math.round(Math.abs(yawChangeSpeed / 360)) + " / s";
       currentYaw += yawChangeSpeed * deltaTime;
       const altitude = avgAt(altitudeArr, indx);
+      altitudeSpan.innerText = Math.round(altitude) + " m";
       const nextAltitude = avgAt(altitudeArr, indx + 1);
       const deltaAltitude = nextAltitude - altitude;
       const forwardFake = 200;

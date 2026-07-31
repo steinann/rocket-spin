@@ -783,6 +783,7 @@ const barInsideDiv = document.getElementById("bar_inside") as HTMLDivElement
 const barDiv = document.getElementById("bar") as HTMLDivElement
 const speedButton = document.getElementById("speed") as HTMLButtonElement
 const degreesPerSecondSpan = document.getElementById("degrees-per-second") as HTMLSpanElement
+const altitudeSpan = document.getElementById("altitude") as HTMLSpanElement
 
 /*const csv = await getCSV()
 const gyroscopeX = csv.data.get("IMU Y Gyroscope")!.filter((v) => {return v !== 0})
@@ -980,6 +981,8 @@ function animate() {
             currentYaw += yawChangeSpeed * deltaTime //+= (avg * Math.PI * 2 * deltaTime)
             
             const altitude = avgAt(altitudeArr, indx)
+            altitudeSpan.innerText = Math.round(altitude) + " m"
+
             const nextAltitude = avgAt(altitudeArr, indx+1)
             const deltaAltitude = nextAltitude - altitude
             const forwardFake = 200

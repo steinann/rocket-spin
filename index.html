@@ -84,15 +84,15 @@
 
             .stats {
                 position: absolute;
-                height: 1em;
-                width: 100%;
+                width: 25%;
                 display: block;
                 left: 0;
                 bottom: 0;
                 background-color: transparent;
                 padding: 1em;
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
+                flex-direction: column;
             }
 
             #speed {
@@ -117,6 +117,7 @@
         </div>
         <div class="stats">
             <span id="degrees-per-second">0° / s</span>
+            <span id="altitude">0 m</span>
         </div>
         <script type="module" src="/src/main.ts" defer></script>
     </body>
