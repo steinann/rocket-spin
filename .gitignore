@@ -26,3 +26,5 @@ docs
 # Large files
 public/assets/ESC2026_BIFROST.csv
 dist/assets/ESC2026_BIFROST.csv
+public/assets/ESC2026_BIFROST_IMU.csv
+dist/assets/ESC2026_BIFROST_IMU.csv
