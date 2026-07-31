@@ -32877,12 +32877,9 @@ speedButton.addEventListener("click", () => {
       speedMult = 1;
       break;
     case 1:
-      speedMult = 8;
+      speedMult = 4;
       break;
-    case 8:
-      speedMult = 16;
-      break;
-    case 16:
+    case 4:
       speedMult = 0.25;
       break;
   }
