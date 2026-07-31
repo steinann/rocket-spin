@@ -32938,6 +32938,9 @@ function animate() {
       const indx = Math.floor(passedTime + minTime);
       const yawChangeSpeed = arrValueSafe(rotationArr, indx);
       degreesPerSecondSpan.innerText = Math.round(Math.abs(yawChangeSpeed / 360)) + " / s";
+      if (yawChangeSpeed === -2294.81005859375) {
+        degreesPerSecondSpan.innerText = "6+ / s";
+      }
       currentYaw += yawChangeSpeed * deltaTime;
       const altitude = avgAt(altitudeArr, indx);
       altitudeSpan.innerText = Math.round(altitude) + " m";

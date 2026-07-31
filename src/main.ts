@@ -977,6 +977,9 @@ function animate() {
             const yawChangeSpeed = arrValueSafe(rotationArr, indx)
             
             degreesPerSecondSpan.innerText = Math.round(Math.abs(yawChangeSpeed / 360)) + " / s"
+            if (yawChangeSpeed === -2294.81005859375) {
+                degreesPerSecondSpan.innerText = "6+ / s"
+            }
 
             currentYaw += yawChangeSpeed * deltaTime //+= (avg * Math.PI * 2 * deltaTime)
             
