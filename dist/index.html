@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Rocket go spin!!!</title>
+      <script type="module" crossorigin src="/react/index.js"></script>
+    </head>
+    <body>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+            }
+
+            .player {
+                position: absolute;
+                height: 1em;
+                width: 100%;
+                display: block;
+                left: 0;
+                top: 0;
+                background-color: rgba(255,255,255,0.25);
+                padding: 1em;
+                display: flex;
+                align-items: center;
+            }
+
+            .play {
+                width: 0;
+                height: 0;
+                border-top: 0.5em solid transparent;
+                border-left: 1em solid #fff;
+                border-bottom: 0.5em solid transparent;
+                background-color: transparent;
+                border-right: none;
+                cursor: pointer;
+                padding: 0;
+                margin-right: 1em;
+            }
+
+            .pause {
+                width: 0;
+                height: 1em;
+                border-width: 0px 12px;
+                background-color: transparent;
+                border-style: none double none none;
+                border-color: #fff;
+                cursor: pointer;
+                padding: 0;
+                margin-right: 1em;
+            }
+
+            #bar {
+                width: calc(100% - 6em);
+                height: 0.25em;
+                background-color: rgba(255,255,255,0.25);
+                cursor: pointer;
+            }
+
+            #bar::before {
+                content: "";
+                position: absolute;
+                top: 1em;
+                bottom: -1px;
+                background: transparent;
+                width: calc(100% - 8em);
+                height: 1em;
+            }
+
+            #bar_inside {
+                width: 50%;
+                height: 100%;
+                background-color: #fff;
+            }
+
+            #speed {
+                font-size: 1em;
+                color: #fff;
+                background-color: transparent;
+                border-style: none;
+                cursor: pointer;
+            }
+
+            .stats {
+                position: absolute;
+                height: 1em;
+                width: 100%;
+                display: block;
+                left: 0;
+                bottom: 0;
+                background-color: transparent;
+                padding: 1em;
+                display: flex;
+                align-items: center;
+            }
+
+            #speed {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+
+            .stats span {
+                width: 6em;
+                font-size: 1em;
+                font-family: Arial, Helvetica, sans-serif;
+                color: #80bfe3;
+            }
+        </style>
+        <div class="player">
+            <button id="play" class="pause"></button>
+            <div id="bar">
+                <div id="bar_inside">
+
+                </div>
+            </div>
+            <button id="speed">1x</button>
+        </div>
+        <div class="stats">
+            <span id="degrees-per-second">0° / s</span>
+        </div>
+    </body>
+</html>
