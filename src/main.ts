@@ -804,7 +804,7 @@ let currentPitch = Math.PI / 4 + Math.PI / 2 + Math.PI
 let justSkipped = false
 let speedMult = 1
 
-const minTime = 165
+const minTime = 170
 const maxTime = 256
 const pitchChangeness = 0.3
 
@@ -985,8 +985,11 @@ function animate() {
 
             const nextAltitude = avgAt(altitudeArr, indx+1)
             const deltaAltitude = nextAltitude - altitude
+            //const deltaAltitude = Math.sin((passedTime / (maxTime - minTime))*Math.PI) - Math.sin(((passedTime-1) / (maxTime - minTime))*Math.PI)
+            //console.log(deltaAltitude)
             const forwardFake = 200
-            const targetPitch = Math.PI / 2 + Math.PI + Math.sin(deltaAltitude / forwardFake)
+            //const forwardFake = 1 / (maxTime - minTime)
+            const targetPitch = Math.PI / 2 + Math.PI + Math.atan(deltaAltitude / forwardFake)
             currentPitch = lerp(currentPitch, targetPitch, deltaTime * pitchChangeness)
             if (justSkipped) {
                 currentPitch = targetPitch
