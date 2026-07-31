@@ -987,7 +987,7 @@ barDiv.addEventListener("click", (e: PointerEvent) => {
     const mouseTotal = e.clientX - bounds.left
     const mouseMax = bounds.right - bounds.left
     const percent = mouseTotal / mouseMax
-    passedTime = lerp(0, maxTime - minTime, percent)
+    passedTime = Math.max(0,lerp(0, maxTime - minTime, percent))
     currentYaw = (passedTime * 3) % (Math.PI * 2)
     justSkipped = true
 })
